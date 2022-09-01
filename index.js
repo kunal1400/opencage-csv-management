@@ -3,7 +3,9 @@ const sqlite3 = require('sqlite3');
 const fs = require('fs');
 const { parse } = require("csv-parse");
 // var escape = require('sql-escape');
-const openSeaKey = 'ef935e6fa4b048e2beff131b156c0318';
+const openSeaKey = '';
+const dbName = 'opencage';
+const tableName = 'posts';
 
 // CSV Indexes
 var startIndex = 0;
@@ -11,7 +13,7 @@ var endIndex = 1000;
 
 // Configuring the sqlite database
 const SQLite3 =  sqlite3.verbose();
-const db = new SQLite3.Database('posts.db');
+const db = new SQLite3.Database(`${dbName}.db`);
 
 /**
  * Promised version of the sqlite3 driver
@@ -36,7 +38,7 @@ const query = (command, method = 'all') => {
  * Creating table if not exist
  */
 db.serialize(async () => {    
-    await query("CREATE TABLE IF NOT EXISTS posts (Title,Owner_Name,Google_Address,Phone,Email,Category,Gallery,id,Location,Lat,Lng)", 'run');
+    await query(`CREATE TABLE IF NOT EXISTS ${tableName} (Title,Owner_Name,Google_Address,Phone,Email,Category,Gallery,id,Location,Lat,Lng)`, 'run');
 });
 
 /**
@@ -46,7 +48,7 @@ db.serialize(async () => {
  * @returns 
  */
 const findRecord = async (id) => {
-    return await query(`SELECT * FROM posts WHERE id = '${id}'`);
+    return await query(`SELECT * FROM ${tableName} WHERE id = '${id}'`);
 }
 
 /**
@@ -58,7 +60,7 @@ const findRecord = async (id) => {
 const insertRecord = async ( recordObject ) => {
     const keys = Object.keys( recordObject ).join(', ');
     const values = Object.values( recordObject ).map((d) => `"${d}"` ).join(', ');
-    const sql = `INSERT INTO posts (${keys}) VALUES (${values})`;
+    const sql = `INSERT INTO ${tableName} (${keys}) VALUES (${values})`;
     return await query(sql);
 }
 
