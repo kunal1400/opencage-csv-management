@@ -2,10 +2,12 @@ const axios = require("axios");
 const sqlite3 = require('sqlite3');
 const fs = require('fs');
 const { parse } = require("csv-parse");
+// var escape = require('sql-escape');
+const openSeaKey = 'ef935e6fa4b048e2beff131b156c0318';
 
 // CSV Indexes
-const startIndex = 0;
-const endIndex = 10000;
+var startIndex = 0;
+var endIndex = 1000;
 
 // Configuring the sqlite database
 const SQLite3 =  sqlite3.verbose();
@@ -55,7 +57,7 @@ const findRecord = async (id) => {
  */
 const insertRecord = async ( recordObject ) => {
     const keys = Object.keys( recordObject ).join(', ');
-    const values = Object.values( recordObject ).map((d) => `'${d}'`).join(', ');
+    const values = Object.values( recordObject ).map((d) => `"${d}"` ).join(', ');
     const sql = `INSERT INTO posts (${keys}) VALUES (${values})`;
     return await query(sql);
 }
@@ -78,7 +80,7 @@ var parser = parse({ columns: true }, async function (err, records) {
 
                     if( recordFromDb.length === 0 ) {
                         // API Url
-                        const URL = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(csvRow?.Google_Address)}&key=ef935e6fa4b048e2beff131b156c0318`;
+                        const URL = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(csvRow?.Google_Address)}&key=${openSeaKey}`;
                         
                         // Calling API and saving response in db
                         const recordToInsert = await axios.get(URL).then((response) => {
@@ -106,15 +108,14 @@ var parser = parse({ columns: true }, async function (err, records) {
                         console.log(insertResponse, "<== insertResponse")
                     }
                     else {
-                        console.log(csvRow.id, "Record Already in db")
+                        // console.log(csvRow.id, "Record Already in db")
                     }
                 }
             }
         }    
     } catch (error) {
         console.log(error);
-    }
-    
+    }    
 });
 
 fs.createReadStream(__dirname + '/import-file.csv').pipe(parser);

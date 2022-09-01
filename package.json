@@ -2,6 +2,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "csv-parse": "^5.3.0",
+    "sql-escape": "^1.0.1",
     "sqlite3": "^5.0.11"
   }
 }
